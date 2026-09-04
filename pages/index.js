@@ -11,7 +11,10 @@ async function readApiResponse(response) {
 }
 
 export async function getServerSideProps({ req, res, query }) {
-  const authReq = { ...req, query };
+  const authReq = {
+    headers: req.headers,
+    query,
+  };
   const authed = isAuthorized(authReq);
   if (!authed) {
     const token = extractToken(authReq);
