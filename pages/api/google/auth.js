@@ -2,6 +2,17 @@ const { google } = require("googleapis");
 const crypto = require("crypto");
 
 export default function handler(req, res) {
+  if (req.method !== "GET") {
+    return res.status(405).send("Method not allowed");
+  }
+
+  const setupKey = Array.isArray(req.query.setup)
+    ? req.query.setup[0]
+    : req.query.setup;
+  if (!process.env.GOOGLE_SETUP_KEY || setupKey !== process.env.GOOGLE_SETUP_KEY) {
+    return res.status(404).send("Not found");
+  }
+
   const state = crypto.randomBytes(32).toString("hex");
 
   const oauth2Client = new google.auth.OAuth2(

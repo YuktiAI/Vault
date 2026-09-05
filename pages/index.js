@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { isAuthorized, extractToken, setAuthCookie } from "../lib/auth";
 
 async function readApiResponse(response) {
   const text = await response.text();
@@ -8,25 +7,6 @@ async function readApiResponse(response) {
   } catch {
     throw new Error(`Server returned an invalid response (${response.status}).`);
   }
-}
-
-export async function getServerSideProps({ req, res, query }) {
-  const authReq = {
-    headers: req.headers,
-    query,
-  };
-  const authed = isAuthorized(authReq);
-  if (!authed) {
-    const token = extractToken(authReq);
-    // Wrong or missing token — show the locked state, no redirect needed.
-    return { props: { justAuthed: false, locked: true } };
-  }
-  // If they arrived via ?key=, set the cookie so future visits need no query param.
-  const queryToken = query && query.key;
-  if (queryToken) {
-    setAuthCookie(res, Array.isArray(queryToken) ? queryToken[0] : queryToken);
-  }
-  return { props: { locked: false } };
 }
 
 function formatSize(bytes) {
@@ -49,7 +29,7 @@ function formatTime(iso) {
   });
 }
 
-export default function Home({ locked }) {
+export default function Home() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dragOver, setDragOver] = useState(false);
@@ -71,8 +51,8 @@ export default function Home({ locked }) {
   }, []);
 
   useEffect(() => {
-    if (!locked) refresh();
-  }, [locked, refresh]);
+    refresh();
+  }, [refresh]);
 
   const uploadOne = useCallback(
     async (file) => {
@@ -134,58 +114,6 @@ export default function Home({ locked }) {
     },
     [linkValue, linkNote, refresh]
   );
-
-  if (locked) {
-    return (
-      <div className="locked">
-        <div className="lockedCard">
-          <div className="mark" />
-          <h1>Not authorized</h1>
-          <p>Open this page with your access link, the one with <code>?key=</code> in it.</p>
-        </div>
-        <style jsx>{`
-          .locked {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #101115;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          }
-          .lockedCard {
-            text-align: center;
-            color: #d5d7dc;
-            max-width: 320px;
-            padding: 40px;
-          }
-          .mark {
-            width: 28px;
-            height: 28px;
-            margin: 0 auto 20px;
-            border-radius: 6px;
-            background: #e8a33d;
-          }
-          h1 {
-            font-size: 20px;
-            margin: 0 0 10px;
-            font-weight: 600;
-          }
-          p {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #8a8f98;
-            margin: 0;
-          }
-          code {
-            background: #1c1e24;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 13px;
-          }
-        `}</style>
-      </div>
-    );
-  }
 
   return (
     <div className="page">

@@ -1,57 +1,38 @@
-const { isAuthorized } = require("../../lib/auth");
 const { saveLink } = require("../../lib/drive");
-
-function getCookie(req, name) {
-  const cookies = (req.headers.cookie || "")
-    .split(";")
-    .map((c) => c.trim());
-
-  const cookie = cookies.find((c) => c.startsWith(`${name}=`));
-
-  return cookie ? decodeURIComponent(cookie.split("=")[1]) : null;
-}
+const { allowRequest } = require("../../lib/rate-limit");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (!isAuthorized(req)) {
-    return res.status(401).json({ error: "Not authorized" });
-  }
-
-  const refreshToken = getCookie(req, "google_refresh_token");
-
-  if (!refreshToken) {
-    return res.status(401).json({
-      error: "Google Drive is not connected",
-    });
+  if (!allowRequest(req, { limit: 20, windowMs: 60 * 1000 })) {
+    return res.status(429).json({ error: "Too many requests" });
   }
 
   const { url, note } = req.body || {};
-
-  if (!url || typeof url !== "string") {
-    return res.status(400).json({
-      error: "A url is required",
-    });
+  if (!url || typeof url !== "string" || url.length > 2048) {
+    return res.status(400).json({ error: "A valid url is required" });
   }
 
   try {
+    const parsedUrl = new URL(url);
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      return res.status(400).json({ error: "Only HTTP and HTTPS links are allowed" });
+    }
+
     const result = await saveLink({
       url,
-      note,
-      refreshToken,
+      note: typeof note === "string" ? note.slice(0, 5000) : "",
     });
 
-    return res.status(200).json({
-      ok: true,
-      file: result,
-    });
-  } catch (e) {
-    console.error("Saving link failed:", e);
-
+    return res.status(200).json({ ok: true, file: result });
+  } catch (error) {
+    console.error("Saving link failed:", error.message);
     return res.status(500).json({
-      error: "Saving link failed: " + e.message,
+      error: error.message === "Google Drive is not configured."
+        ? error.message
+        : "Saving link failed.",
     });
   }
 }

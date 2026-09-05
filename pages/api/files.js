@@ -1,37 +1,24 @@
-const { isAuthorized } = require("../../lib/auth");
 const { listFiles } = require("../../lib/drive");
-
-function getCookie(req, name) {
-  const cookies = (req.headers.cookie || "")
-    .split(";")
-    .map((c) => c.trim());
-
-  const cookie = cookies.find((c) => c.startsWith(`${name}=`));
-
-  return cookie ? decodeURIComponent(cookie.split("=")[1]) : null;
-}
+const { allowRequest } = require("../../lib/rate-limit");
 
 export default async function handler(req, res) {
-  if (!isAuthorized(req)) {
-    return res.status(401).json({ error: "Not authorized" });
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const refreshToken = getCookie(req, "google_refresh_token");
-
-  if (!refreshToken) {
-    return res.status(401).json({
-      error: "Google Drive is not connected",
-    });
+  if (!allowRequest(req, { limit: 60, windowMs: 60 * 1000 })) {
+    return res.status(429).json({ error: "Too many requests" });
   }
 
   try {
-    const files = await listFiles(refreshToken);
+    const files = await listFiles();
     return res.status(200).json({ files });
-  } catch (e) {
-    console.error("Listing failed:", e);
-
+  } catch (error) {
+    console.error("Listing failed:", error.message);
     return res.status(500).json({
-      error: "Listing failed: " + e.message,
+      error: error.message === "Google Drive is not configured."
+        ? error.message
+        : "Listing failed.",
     });
   }
 }
