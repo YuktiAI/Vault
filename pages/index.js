@@ -29,15 +29,47 @@ function formatTime(iso) {
   });
 }
 
+function getFileType(file) {
+  const mimeType = (file && file.mimeType) || "";
+  if (mimeType === "application/pdf") return "PDF";
+  if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") return "DOCX";
+  if (mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") return "XLSX";
+  if (mimeType === "image/png") return "PNG";
+  if (mimeType === "image/jpeg") return "JPG";
+  if (mimeType === "application/zip") return "ZIP";
+  if (mimeType === "text/plain") return "TXT";
+  const name = (file && file.name) || "";
+  const match = name.match(/\.([A-Za-z0-9]+)$/);
+  if (!match) return mimeType ? mimeType.split("/")[1]?.toUpperCase() || "FILE" : "FILE";
+  return match[1].toUpperCase();
+}
+
 export default function Home() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dragOver, setDragOver] = useState(false);
-  const [queue, setQueue] = useState([]); // items currently uploading
+  const [queue, setQueue] = useState([]);
   const [linkValue, setLinkValue] = useState("");
   const [linkNote, setLinkNote] = useState("");
   const [message, setMessage] = useState(null);
+  const [adminMode, setAdminMode] = useState(false);
+  const [showAdminForm, setShowAdminForm] = useState(false);
+  const [adminKeyInput, setAdminKeyInput] = useState("");
   const inputRef = useRef(null);
+
+  const refreshAdminStatus = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/session");
+      if (!r.ok) {
+        setAdminMode(false);
+        return;
+      }
+      const data = await readApiResponse(r);
+      setAdminMode(Boolean(data.admin));
+    } catch {
+      setAdminMode(false);
+    }
+  }, []);
 
   const refresh = useCallback(async () => {
     try {
@@ -52,7 +84,8 @@ export default function Home() {
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+    refreshAdminStatus();
+  }, [refresh, refreshAdminStatus]);
 
   const uploadOne = useCallback(
     async (file) => {
@@ -115,6 +148,66 @@ export default function Home() {
     [linkValue, linkNote, refresh]
   );
 
+  const handleDownload = useCallback((file) => {
+    if (!file || !file.id) return;
+    window.location.href = `/api/download?id=${encodeURIComponent(file.id)}`;
+  }, []);
+
+  const handleDelete = useCallback(
+    async (file) => {
+      if (!file || !file.id) return;
+      const confirmed = window.confirm(`Delete '${file.name}'?`);
+      if (!confirmed) return;
+
+      try {
+        const r = await fetch(`/api/files?id=${encodeURIComponent(file.id)}`, { method: "DELETE" });
+        const data = await readApiResponse(r);
+        if (!r.ok) throw new Error(data.error || "Delete failed.");
+        setMessage({ type: "ok", text: `${file.name} deleted.` });
+        refresh();
+        refreshAdminStatus();
+      } catch (e) {
+        setMessage({ type: "error", text: e.message });
+      }
+    },
+    [refresh, refreshAdminStatus]
+  );
+
+  const handleAdminLogin = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (!adminKeyInput.trim()) return;
+
+      try {
+        const r = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key: adminKeyInput.trim() }),
+        });
+        const data = await readApiResponse(r);
+        if (!r.ok) throw new Error(data.error || "Admin login failed.");
+        setAdminKeyInput("");
+        setShowAdminForm(false);
+        setAdminMode(true);
+        setMessage({ type: "ok", text: "Owner access enabled." });
+      } catch (e) {
+        setMessage({ type: "error", text: e.message });
+      }
+    },
+    [adminKeyInput]
+  );
+
+  const handleAdminLogout = useCallback(async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+      setAdminMode(false);
+      setShowAdminForm(false);
+      setMessage({ type: "ok", text: "Owner access ended." });
+    } catch {
+      setAdminMode(false);
+    }
+  }, []);
+
   return (
     <div className="page">
       <header>
@@ -124,6 +217,33 @@ export default function Home() {
           <p className="sub">Work system → your drive</p>
         </div>
       </header>
+
+      <div className="toolbar">
+        <button type="button" className="ghostButton" onClick={refresh}>
+          Refresh
+        </button>
+        {adminMode ? (
+          <button type="button" className="ghostButton" onClick={handleAdminLogout}>
+            Owner logout
+          </button>
+        ) : (
+          <button type="button" className="ghostButton" onClick={() => setShowAdminForm((value) => !value)}>
+            Owner login
+          </button>
+        )}
+      </div>
+
+      {showAdminForm && !adminMode && (
+        <form className="adminForm" onSubmit={handleAdminLogin}>
+          <input
+            type="password"
+            placeholder="Admin key"
+            value={adminKeyInput}
+            onChange={(e) => setAdminKeyInput(e.target.value)}
+          />
+          <button type="submit">Unlock</button>
+        </form>
+      )}
 
       <section
         className={`dropzone ${dragOver ? "over" : ""}`}
@@ -182,24 +302,31 @@ export default function Home() {
       <section className="manifest">
         <div className="manifestHead">
           <span>name</span>
+          <span>type</span>
           <span>size</span>
           <span>sent</span>
+          <span>actions</span>
         </div>
         {loading && <div className="empty">Loading…</div>}
         {!loading && files.length === 0 && <div className="empty">Nothing here yet.</div>}
         {!loading &&
           files.map((f) => (
-            <a
-              key={f.id}
-              href={f.webViewLink}
-              target="_blank"
-              rel="noreferrer"
-              className="row"
-            >
+            <div key={f.id} className="row">
               <span className="fname">{f.name}</span>
+              <span className="ftype">{getFileType(f)}</span>
               <span className="fsize">{formatSize(f.size)}</span>
               <span className="ftime">{formatTime(f.createdTime)}</span>
-            </a>
+              <span className="actions">
+                <button type="button" className="miniButton" onClick={() => handleDownload(f)}>
+                  Download
+                </button>
+                {adminMode && (
+                  <button type="button" className="miniButton danger" onClick={() => handleDelete(f)}>
+                    Delete
+                  </button>
+                )}
+              </span>
+            </div>
           ))}
       </section>
 
@@ -244,6 +371,30 @@ export default function Home() {
           margin: 2px 0 0;
           font-size: 13px;
           color: #8a8f98;
+        }
+        .toolbar {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .ghostButton,
+        .miniButton {
+          background: #16171c;
+          color: #edeef0;
+          border: 1px solid #2a2d35;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 12.5px;
+          cursor: pointer;
+        }
+        .miniButton {
+          padding: 6px 9px;
+          line-height: 1.2;
+        }
+        .miniButton.danger {
+          color: #f7c3b7;
+          border-color: #5a2d2a;
         }
         .dropzone {
           border: 1.5px dashed #33363f;
@@ -298,6 +449,32 @@ export default function Home() {
           flex-shrink: 0;
           color: #8a8f98;
         }
+        .adminForm {
+          display: flex;
+          gap: 8px;
+          margin: 0 0 16px;
+        }
+        .adminForm input {
+          flex: 1;
+          background: #16171c;
+          border: 1px solid #2a2d35;
+          border-radius: 8px;
+          padding: 10px 12px;
+          color: #edeef0;
+          font-size: 13.5px;
+          outline: none;
+        }
+        .adminForm button,
+        .linkRow button {
+          background: #e8a33d;
+          color: #16171c;
+          border: none;
+          border-radius: 8px;
+          padding: 0 18px;
+          font-size: 13.5px;
+          font-weight: 600;
+          cursor: pointer;
+        }
         .linkRow {
           display: flex;
           gap: 8px;
@@ -312,7 +489,8 @@ export default function Home() {
           font-size: 13.5px;
           outline: none;
         }
-        .linkRow input:focus {
+        .linkRow input:focus,
+        .adminForm input:focus {
           border-color: #e8a33d;
         }
         .linkRow input[type="url"] {
@@ -320,16 +498,6 @@ export default function Home() {
         }
         .noteInput {
           flex: 1;
-        }
-        .linkRow button {
-          background: #e8a33d;
-          color: #16171c;
-          border: none;
-          border-radius: 8px;
-          padding: 0 18px;
-          font-size: 13.5px;
-          font-weight: 600;
-          cursor: pointer;
         }
         .flash {
           margin-top: 10px;
@@ -346,11 +514,12 @@ export default function Home() {
         }
         .manifestHead {
           display: grid;
-          grid-template-columns: 1fr 80px 120px;
+          grid-template-columns: minmax(0, 1.6fr) 80px 80px 110px 170px;
           font-size: 11px;
           color: #5c616c;
           padding: 0 4px 10px;
           border-bottom: 1px solid #23252c;
+          gap: 8px;
         }
         .empty {
           padding: 20px 4px;
@@ -359,9 +528,9 @@ export default function Home() {
         }
         .row {
           display: grid;
-          grid-template-columns: 1fr 80px 120px;
+          grid-template-columns: minmax(0, 1.6fr) 80px 80px 110px 170px;
+          gap: 8px;
           padding: 12px 4px;
-          text-decoration: none;
           color: #d5d7dc;
           border-bottom: 1px solid #1c1e24;
           font-size: 13px;
@@ -370,22 +539,35 @@ export default function Home() {
         .row:hover {
           background: #16171c;
         }
-        .fname {
+        .fname,
+        .ftype,
+        .fsize,
+        .ftime,
+        .actions {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+        .fname {
           margin-right: 10px;
         }
+        .ftype,
         .fsize,
         .ftime {
           font-family: ui-monospace, "SF Mono", Menlo, monospace;
           font-size: 11.5px;
           color: #8a8f98;
         }
+        .actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 6px;
+          min-width: 0;
+        }
         @media (max-width: 480px) {
           .manifestHead,
           .row {
-            grid-template-columns: 1fr 60px;
+            grid-template-columns: minmax(0, 1.4fr) 60px 70px 60px 100px;
           }
           .ftime {
             display: none;
