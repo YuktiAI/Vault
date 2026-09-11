@@ -236,20 +236,34 @@ export default function Home() {
         {!loading && files.length === 0 && <div className="empty">Nothing here yet.</div>}
         {!loading &&
           files.map((f) => (
-            <div key={f.id} className="row">
+            <a key={f.id} href={f.webViewLink || "#"} target="_blank" rel="noreferrer" className="row">
               <span className="fname">{f.name}</span>
               <span className="ftype">{getFileType(f)}</span>
               <span className="fsize">{formatSize(f.size)}</span>
               <span className="ftime">{formatTime(f.createdTime)}</span>
               <span className="actions">
-                <button type="button" className="miniButton" onClick={() => handleDownload(f)}>
+                <button
+                  type="button"
+                  className="miniButton"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDownload(f);
+                  }}
+                >
                   Download
                 </button>
-                <button type="button" className="miniButton danger" onClick={() => handleDelete(f)}>
+                <button
+                  type="button"
+                  className="miniButton danger"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete(f);
+                  }}
+                >
                   Delete
                 </button>
               </span>
-            </div>
+            </a>
           ))}
       </section>
 
