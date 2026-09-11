@@ -1,6 +1,5 @@
 const { listFiles, getFileMetadata, deleteFile, isFileDirectlyInVaultFolder } = require("../../lib/drive");
 const { allowRequest } = require("../../lib/rate-limit");
-const { isAdminAuthorized } = require("../../lib/admin-auth");
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
@@ -24,10 +23,6 @@ export default async function handler(req, res) {
   if (req.method === "DELETE") {
     if (!allowRequest(req, { limit: 20, windowMs: 60 * 1000 })) {
       return res.status(429).json({ error: "Too many requests" });
-    }
-
-    if (!isAdminAuthorized(req)) {
-      return res.status(401).json({ error: "Admin access required." });
     }
 
     const fileId = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
