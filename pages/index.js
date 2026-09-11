@@ -52,24 +52,7 @@ export default function Home() {
   const [linkValue, setLinkValue] = useState("");
   const [linkNote, setLinkNote] = useState("");
   const [message, setMessage] = useState(null);
-  const [adminMode, setAdminMode] = useState(false);
-  const [showAdminForm, setShowAdminForm] = useState(false);
-  const [adminKeyInput, setAdminKeyInput] = useState("");
   const inputRef = useRef(null);
-
-  const refreshAdminStatus = useCallback(async () => {
-    try {
-      const r = await fetch("/api/admin/session");
-      if (!r.ok) {
-        setAdminMode(false);
-        return;
-      }
-      const data = await readApiResponse(r);
-      setAdminMode(Boolean(data.admin));
-    } catch {
-      setAdminMode(false);
-    }
-  }, []);
 
   const refresh = useCallback(async () => {
     try {
@@ -84,8 +67,7 @@ export default function Home() {
 
   useEffect(() => {
     refresh();
-    refreshAdminStatus();
-  }, [refresh, refreshAdminStatus]);
+  }, [refresh]);
 
   const uploadOne = useCallback(
     async (file) => {
@@ -165,48 +147,12 @@ export default function Home() {
         if (!r.ok) throw new Error(data.error || "Delete failed.");
         setMessage({ type: "ok", text: `${file.name} deleted.` });
         refresh();
-        refreshAdminStatus();
       } catch (e) {
         setMessage({ type: "error", text: e.message });
       }
     },
-    [refresh, refreshAdminStatus]
+    [refresh]
   );
-
-  const handleAdminLogin = useCallback(
-    async (e) => {
-      e.preventDefault();
-      if (!adminKeyInput.trim()) return;
-
-      try {
-        const r = await fetch("/api/admin/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key: adminKeyInput.trim() }),
-        });
-        const data = await readApiResponse(r);
-        if (!r.ok) throw new Error(data.error || "Admin login failed.");
-        setAdminKeyInput("");
-        setShowAdminForm(false);
-        setAdminMode(true);
-        setMessage({ type: "ok", text: "Owner access enabled." });
-      } catch (e) {
-        setMessage({ type: "error", text: e.message });
-      }
-    },
-    [adminKeyInput]
-  );
-
-  const handleAdminLogout = useCallback(async () => {
-    try {
-      await fetch("/api/admin/logout", { method: "POST" });
-      setAdminMode(false);
-      setShowAdminForm(false);
-      setMessage({ type: "ok", text: "Owner access ended." });
-    } catch {
-      setAdminMode(false);
-    }
-  }, []);
 
   return (
     <div className="page">
@@ -222,28 +168,7 @@ export default function Home() {
         <button type="button" className="ghostButton" onClick={refresh}>
           Refresh
         </button>
-        {adminMode ? (
-          <button type="button" className="ghostButton" onClick={handleAdminLogout}>
-            Owner logout
-          </button>
-        ) : (
-          <button type="button" className="ghostButton" onClick={() => setShowAdminForm((value) => !value)}>
-            Owner login
-          </button>
-        )}
       </div>
-
-      {showAdminForm && !adminMode && (
-        <form className="adminForm" onSubmit={handleAdminLogin}>
-          <input
-            type="password"
-            placeholder="Admin key"
-            value={adminKeyInput}
-            onChange={(e) => setAdminKeyInput(e.target.value)}
-          />
-          <button type="submit">Unlock</button>
-        </form>
-      )}
 
       <section
         className={`dropzone ${dragOver ? "over" : ""}`}
@@ -320,11 +245,9 @@ export default function Home() {
                 <button type="button" className="miniButton" onClick={() => handleDownload(f)}>
                   Download
                 </button>
-                {adminMode && (
-                  <button type="button" className="miniButton danger" onClick={() => handleDelete(f)}>
-                    Delete
-                  </button>
-                )}
+                <button type="button" className="miniButton danger" onClick={() => handleDelete(f)}>
+                  Delete
+                </button>
               </span>
             </div>
           ))}
