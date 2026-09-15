@@ -7,6 +7,7 @@ import { HardDrive, Lock, Shield } from "lucide-react"
 
 export default function LoginPage() {
   const [showForm, setShowForm] = useState(false)
+  const [tapCount, setTapCount] = useState(0)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -29,6 +30,15 @@ export default function LoginPage() {
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
+
+  const handleSecretTap = () => {
+    const newCount = tapCount + 1
+    setTapCount(newCount)
+    if (newCount >= 5) {
+      setShowForm(true)
+      setTapCount(0) // reset
+    }
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,7 +64,11 @@ export default function LoginPage() {
     return (
       <div style={{ fontFamily: "system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'", height: "100vh", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }} className="bg-white text-black dark:bg-black dark:text-white">
         <div style={{ lineHeight: "48px" }}>
-          <h1 style={{ display: "inline-block", margin: "0 20px 0 0", paddingRight: "23px", fontSize: "24px", fontWeight: 500, verticalAlign: "top", borderRight: "1px solid rgba(150, 150, 150, 0.3)" }}>
+          <h1 
+            onClick={handleSecretTap}
+            className="cursor-default select-none"
+            style={{ display: "inline-block", margin: "0 20px 0 0", paddingRight: "23px", fontSize: "24px", fontWeight: 500, verticalAlign: "top", borderRight: "1px solid rgba(150, 150, 150, 0.3)" }}
+          >
             404
           </h1>
           <div style={{ display: "inline-block", textAlign: "left" }}>
