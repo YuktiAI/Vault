@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Supabase Vault',
-  description: 'A personal file vault powered by Supabase.',
+  title: 'Storage',
+  description: 'Private Document System',
 }
 
 export default function RootLayout({

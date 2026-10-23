@@ -73,7 +73,7 @@ export default async function DashboardPage() {
                 className="relative flex items-center gap-3 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-colors group"
               >
                 <Link href={`/folder/${folder.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-                  <Folder className="w-5 h-5 text-blue-500 fill-blue-500/20 flex-shrink-0" />
+                  <Folder className="w-5 h-5 text-zinc-300 fill-zinc-400/20 flex-shrink-0" />
                   <span className="flex-1 text-sm font-medium truncate">{folder.name}</span>
                 </Link>
                 <FolderActions folder={folder} />
@@ -113,7 +113,7 @@ export default async function DashboardPage() {
                   className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-[var(--color-surface-2)] transition-colors group cursor-pointer"
                 >
                   <div className="col-span-6 lg:col-span-7 flex items-center gap-3 overflow-hidden">
-                    <File className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                    <File className="w-5 h-5 text-zinc-400 flex-shrink-0" />
                     <span className="text-sm font-medium truncate">{file.name}</span>
                   </div>
                   <div className="col-span-3 lg:col-span-2 hidden md:block text-sm text-[var(--color-text-muted)]">

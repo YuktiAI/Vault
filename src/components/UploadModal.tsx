@@ -144,7 +144,7 @@ export function UploadModal({ isOpen, onClose, currentFolderId }: UploadModalPro
               className={`
                 h-48 border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-colors
                 ${dragActive 
-                  ? "border-blue-500 bg-blue-500/5" 
+                  ? "border-white/40 bg-white/5" 
                   : "border-[var(--color-border)] bg-[var(--color-surface-2)]/30 hover:bg-[var(--color-surface-2)]/80 hover:border-[var(--color-text-muted)]"
                 }
               `}
@@ -156,8 +156,8 @@ export function UploadModal({ isOpen, onClose, currentFolderId }: UploadModalPro
                 className="hidden"
                 onChange={handleChange}
               />
-              <div className="w-12 h-12 mb-3 rounded-full bg-blue-500/10 flex items-center justify-center">
-                <UploadCloud className="w-6 h-6 text-blue-500" />
+              <div className="w-12 h-12 mb-3 rounded-full bg-white/10 flex items-center justify-center">
+                <UploadCloud className="w-6 h-6 text-zinc-300" />
               </div>
               <p className="text-sm font-medium text-[var(--color-text)] mb-1">
                 Drag and drop files here
@@ -173,7 +173,7 @@ export function UploadModal({ isOpen, onClose, currentFolderId }: UploadModalPro
                 {!uploading && (
                   <button 
                     onClick={() => setFiles([])}
-                    className="text-xs text-blue-400 hover:text-blue-300"
+                    className="text-xs text-zinc-400 hover:text-white"
                   >
                     Clear all
                   </button>
@@ -183,7 +183,7 @@ export function UploadModal({ isOpen, onClose, currentFolderId }: UploadModalPro
               <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
                 {files.map((f, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--color-surface-2)]/50 border border-[var(--color-border)]">
-                    <FileIcon className="w-5 h-5 text-blue-400 shrink-0" />
+                    <FileIcon className="w-5 h-5 text-zinc-400 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--color-text)] truncate">{f.name}</p>
                       <p className="text-xs text-[var(--color-text-muted)]">{(f.size / 1024 / 1024).toFixed(2)} MB</p>
@@ -196,11 +196,11 @@ export function UploadModal({ isOpen, onClose, currentFolderId }: UploadModalPro
                 <div className="pt-4">
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-[var(--color-text-muted)]">Uploading...</span>
-                    <span className="font-medium text-blue-400">{progress}%</span>
+                    <span className="font-medium text-white">{progress}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-[var(--color-surface-3)] rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-out"
+                      className="h-full bg-white rounded-full transition-all duration-300 ease-out"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
@@ -221,7 +221,7 @@ export function UploadModal({ isOpen, onClose, currentFolderId }: UploadModalPro
           <button
             onClick={handleUpload}
             disabled={files.length === 0 || uploading}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? (
               <>

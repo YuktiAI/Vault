@@ -71,11 +71,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--color-border)]">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <HardDrive className="w-5 h-5 text-white" />
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-white group-hover:bg-white/15 transition-colors">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
             </div>
-            <span className="font-semibold text-lg tracking-tight text-[var(--color-text)]">Vault</span>
+            <span className="font-medium text-xs tracking-widest uppercase text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors">Drive</span>
           </Link>
           <button 
             className="lg:hidden text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
@@ -88,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 relative">
           <button 
             onClick={() => setNewDropdownOpen(!newDropdownOpen)}
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-xl font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 bg-white hover:bg-zinc-200 text-zinc-950 py-2.5 px-4 rounded-xl font-medium transition-colors shadow-sm"
           >
             <Plus className="w-5 h-5" />
             New
@@ -103,7 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   setNewDropdownOpen(false)
                 }}
               >
-                <FileUp className="w-4 h-4 text-blue-400" />
+                <FileUp className="w-4 h-4 text-zinc-400" />
                 File Upload
               </button>
               <div className="h-px bg-[var(--color-border)]" />
@@ -114,7 +117,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   setNewDropdownOpen(false)
                 }}
               >
-                <FolderPlus className="w-4 h-4 text-blue-400" />
+                <FolderPlus className="w-4 h-4 text-zinc-400" />
                 New Folder
               </button>
             </div>
@@ -131,7 +134,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                   ${isActive 
-                    ? "bg-blue-500/10 text-blue-500" 
+                    ? "bg-white/10 text-white" 
                     : "text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-2)]"
                   }
                 `}

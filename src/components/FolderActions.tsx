@@ -99,12 +99,12 @@ export function FolderActions({ folder }: FolderActionsProps) {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === "Escape" && setRenaming(false)}
-          className="flex-1 px-2 py-1 text-sm rounded-lg border border-blue-500 bg-[var(--color-bg)] text-[var(--color-text)] outline-none min-w-0"
+          className="flex-1 px-2 py-1 text-sm rounded-lg border border-zinc-500 bg-[var(--color-bg)] text-[var(--color-text)] outline-none min-w-0"
         />
         <button
           type="submit"
           disabled={!!loading}
-          className="text-xs text-blue-400 hover:text-blue-300 font-medium shrink-0"
+          className="text-xs text-zinc-200 hover:text-white font-medium shrink-0"
         >
           {loading === "rename" ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save"}
         </button>

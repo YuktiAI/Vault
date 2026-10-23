@@ -102,7 +102,7 @@ export function FileActions({ file }: { file: FileData }) {
         onClick={handleView}
         disabled={!!loadingAction}
         title="View"
-        className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 hover:bg-blue-400/10 transition-colors disabled:opacity-50"
+        className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
       >
         {loadingAction === "view" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
       </button>

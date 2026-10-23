@@ -62,7 +62,7 @@ export function NewFolderModal({ isOpen, onClose, currentFolderId }: NewFolderMo
       <div className="w-full max-w-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         <div className="px-6 py-4 border-b border-[var(--color-border)] flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[var(--color-text)] flex items-center gap-2">
-            <FolderPlus className="w-5 h-5 text-blue-500" />
+            <FolderPlus className="w-5 h-5 text-zinc-300" />
             New Folder
           </h2>
           <button 
@@ -94,7 +94,7 @@ export function NewFolderModal({ isOpen, onClose, currentFolderId }: NewFolderMo
                 autoFocus
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500"
                 placeholder="Untitled folder"
               />
             </div>
@@ -112,7 +112,7 @@ export function NewFolderModal({ isOpen, onClose, currentFolderId }: NewFolderMo
             <button
               type="submit"
               disabled={!name.trim() || loading}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
