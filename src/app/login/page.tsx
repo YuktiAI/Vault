@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
-import { HardDrive, Lock, Shield } from "lucide-react"
 
 export default function LoginPage() {
   const [showForm, setShowForm] = useState(false)
@@ -82,51 +81,77 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-[var(--color-surface)]">
-      {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-            <HardDrive className="w-6 h-6" />
+    <div className="min-h-screen flex bg-[var(--color-bg)]">
+      {/* Left panel — clean professional look */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-16 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #0f1117 0%, #1a1f2e 50%, #0f1117 100%)" }}
+      >
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
+          backgroundSize: "40px 40px"
+        }} />
+
+        {/* Top badge */}
+        <div className="relative flex items-center gap-3">
+          <div className="w-8 h-8 rounded bg-white/10 border border-white/20 flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
           </div>
-          <span className="text-xl font-bold tracking-tight">Vault</span>
+          <span className="text-white/60 text-sm tracking-widest uppercase font-medium">Secure Portal</span>
         </div>
 
-        <div>
-          <h1 className="text-4xl font-bold leading-tight mb-4">
-            Your files,<br />
-            securely stored.
+        {/* Center content */}
+        <div className="relative">
+          <p className="text-white/30 text-xs tracking-widest uppercase mb-6 font-medium">
+            Private Document System
+          </p>
+          <h1 className="text-5xl font-light text-white leading-tight mb-6 tracking-tight">
+            Authorised<br />
+            <span className="font-semibold">Access Only.</span>
           </h1>
-          <p className="text-blue-100 text-lg mb-10">
-            Powered entirely by Supabase. Secure, fast, and completely yours.
+          <p className="text-white/40 text-base leading-relaxed max-w-sm">
+            This system is restricted to authorised personnel. All access is monitored and logged. Unauthorised access is strictly prohibited.
           </p>
 
-          <div className="space-y-5">
-            {[
-              { icon: Shield, text: "End-to-end access control" },
-              { icon: Lock, text: "Secure row-level security" },
-              { icon: HardDrive, text: "Unlimited Supabase Storage" },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-4 h-4" />
-                </div>
-                <span className="text-blue-50">{text}</span>
-              </div>
-            ))}
+          <div className="mt-10 flex items-center gap-6">
+            <div className="flex items-center gap-2 text-white/30 text-xs">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              System Operational
+            </div>
+            <div className="text-white/20 text-xs">|</div>
+            <div className="text-white/30 text-xs">256-bit Encrypted</div>
           </div>
         </div>
-        <p className="text-blue-200 text-xs">Self-hosted on Vercel & Supabase</p>
+
+        {/* Bottom */}
+        <div className="relative">
+          <p className="text-white/20 text-xs">
+            © {new Date().getFullYear()} — Private & Confidential
+          </p>
+        </div>
       </div>
 
       {/* Right panel — sign in */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--color-surface)]">
         <div className="w-full max-w-sm">
-          <h2 className="text-2xl font-bold text-[var(--color-text)] mb-2">
-            Welcome back
-          </h2>
-          <p className="text-[var(--color-text-muted)] mb-8">
-            Enter your credentials to access your vault.
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center gap-2 mb-10">
+            <div className="w-7 h-7 rounded bg-white/10 border border-white/10 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-text-muted)]">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <span className="text-sm text-[var(--color-text-muted)] tracking-widest uppercase">Secure Portal</span>
+          </div>
+
+          <p className="text-xs text-[var(--color-text-muted)] tracking-widest uppercase mb-2 font-medium">Authentication</p>
+          <h2 className="text-2xl font-semibold text-[var(--color-text)] mb-1">Sign in</h2>
+          <p className="text-[var(--color-text-muted)] text-sm mb-8">
+            Enter your credentials to continue.
           </p>
 
           <form onSubmit={handleSignIn} className="space-y-4">

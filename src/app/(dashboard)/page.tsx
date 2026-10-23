@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
-import { File, Folder, MoreVertical } from "lucide-react"
+import { File, Folder } from "lucide-react"
 import { FileActions } from "@/components/FileActions"
+import Link from "next/link"
 
 // Types matching our Supabase schema
 type FileData = {
@@ -44,7 +45,7 @@ export default async function DashboardPage() {
       .from('files')
       .select('*')
       .is('folder_id', null)
-      .is('is_trashed', false)
+      .neq('is_trashed', true)
       .order('created_at', { ascending: false })
   ])
 
@@ -66,16 +67,14 @@ export default async function DashboardPage() {
           <h2 className="text-sm font-medium text-[var(--color-text-muted)] mb-4">Folders</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {folders.map((folder: FolderData) => (
-              <div 
+              <Link
                 key={folder.id}
+                href={`/folder/${folder.id}`}
                 className="flex items-center gap-3 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer group"
               >
                 <Folder className="w-5 h-5 text-blue-500 fill-blue-500/20" />
                 <span className="flex-1 text-sm font-medium truncate">{folder.name}</span>
-                <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[var(--color-surface-3)] rounded text-[var(--color-text-muted)] transition-opacity">
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
