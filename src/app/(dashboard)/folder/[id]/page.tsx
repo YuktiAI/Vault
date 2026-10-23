@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { File, Folder, ChevronRight } from "lucide-react"
 import { FileActions } from "@/components/FileActions"
+import { FolderActions } from "@/components/FolderActions"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -104,14 +105,16 @@ export default async function FolderPage({ params }: { params: { id: string } })
           <h2 className="text-sm font-medium text-[var(--color-text-muted)] mb-4">Folders</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {folders.map((folder: FolderData) => (
-              <Link
+              <div
                 key={folder.id}
-                href={`/folder/${folder.id}`}
-                className="flex items-center gap-3 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer group"
+                className="relative flex items-center gap-3 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-colors group"
               >
-                <Folder className="w-5 h-5 text-blue-500 fill-blue-500/20" />
-                <span className="flex-1 text-sm font-medium truncate">{folder.name}</span>
-              </Link>
+                <Link href={`/folder/${folder.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                  <Folder className="w-5 h-5 text-blue-500 fill-blue-500/20 flex-shrink-0" />
+                  <span className="flex-1 text-sm font-medium truncate">{folder.name}</span>
+                </Link>
+                <FolderActions folder={folder} />
+              </div>
             ))}
           </div>
         </section>

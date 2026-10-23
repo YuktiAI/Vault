@@ -17,6 +17,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [newDropdownOpen, setNewDropdownOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  // Derive the current folder ID from the URL (e.g. /folder/abc123 → "abc123")
+  const currentFolderId = pathname.startsWith('/folder/')
+    ? pathname.split('/folder/')[1] ?? null
+    : null
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -40,13 +46,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <UploadModal 
         isOpen={uploadModalOpen} 
         onClose={() => setUploadModalOpen(false)} 
-        currentFolderId={null} 
+        currentFolderId={currentFolderId} 
       />
       
       <NewFolderModal
         isOpen={folderModalOpen}
         onClose={() => setFolderModalOpen(false)}
-        currentFolderId={null}
+        currentFolderId={currentFolderId}
       />
 
       {/* Mobile overlay */}
